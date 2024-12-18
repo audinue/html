@@ -1,13 +1,13 @@
-const map = {
+let map = {
   "'": '&apos;',
   '"': '&quot;',
   '<': '&lt;',
   '&': '&amp;'
 }
 
-const t = {}
+let t = {}
 
-const escape = value => {
+let escape = value => {
   if (value === false || value === null || value === undefined) {
     return ''
   } else if (Array.isArray(value)) {
@@ -19,9 +19,9 @@ const escape = value => {
   }
 }
 
-export const safe = string => ({ t, toString: () => string })
+export let safe = string => ({ t, toString: () => string })
 
-export const html = (raw, ...values) => ({
+export let html = (raw, ...values) => ({
   t,
   toString: () => String.raw({ raw }, ...values.map(escape))
 })
