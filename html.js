@@ -1,33 +1,33 @@
-let html = (() => {
-  let map = {
-    "'": '&apos;',
-    '"': '&quot;',
-    '<': '&lt;',
-    '&': '&amp;'
+class Chunk extends String {}
+
+class Html extends Chunk {}
+
+class Unsafe extends Chunk {}
+
+const replacement = char =>
+  char === "'"
+    ? '&apos;'
+    : char === '"'
+    ? '&quot;'
+    : char === '&'
+    ? '&amp;'
+    : '&lt;'
+
+const quote = value => {
+  if (value === null || value === undefined || value === false) {
+    return ''
+  } else if (value instanceof Chunk) {
+    return value
+  } else if (Array.isArray(value)) {
+    return value.map(quote).join('')
+  } else {
+    return String(value).replace(/['"&<]/g, replacement)
   }
+}
 
-  let t = {}
+const html = (raw, ...values) =>
+  new Html(String.raw({ raw }, ...values.map(quote)))
 
-  let escape = value => {
-    if (value === false || value === null || value === undefined) {
-      return ''
-    } else if (Array.isArray(value)) {
-      return value.map(escape).join('')
-    } else if (value?.t === t) {
-      return value
-    } else {
-      return String(value).replace(/['"<&]/g, char => map[char])
-    }
-  }
+const unsafe = value => new Unsafe(value)
 
-  let safe = string => ({ t, toString: () => string })
-
-  let html = (raw, ...values) => ({
-    t,
-    toString: () => String.raw({ raw }, ...values.map(escape))
-  })
-
-  html.safe = safe
-
-  return html
-})()
+export { html, unsafe }
