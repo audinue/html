@@ -1,16 +1,16 @@
 class Element {
-  constructor (tag, props, ...children) {
-    this.tag = tag
-    this.props = props ?? {}
-    this.children = children.flat()
+  constructor(tag, props, ...children) {
+    this.tag = tag;
+    this.props = props ?? {};
+    this.children = children.flat();
   }
 }
 
-const Fragment = {}
+class Fragment {}
 
-const Context = {}
+class Context {};
 
-const booleanNames = {
+let booleanNames = {
   allowfullscreen: 0,
   async: 0,
   autofocus: 0,
@@ -37,10 +37,10 @@ const booleanNames = {
   selected: 0,
   shadowrootclonable: 0,
   shadowrootdelegatesfocus: 0,
-  shadowrootserializable: 0
-}
+  shadowrootserializable: 0,
+};
 
-const voidTags = {
+let voidTags = {
   area: 0,
   base: 0,
   br: 0,
@@ -53,113 +53,113 @@ const voidTags = {
   meta: 0,
   source: 0,
   track: 0,
-  wbr: 0
-}
+  wbr: 0,
+};
 
-const createElement = (...args) => new Element(...args)
+let createElement = (...args) => new Element(...args);
 
-const replacement = char =>
-  char === '"' ? '&quot;' : char === '&' ? '&amp;' : '&lt;'
+let replacement = (char) =>
+  char === '"' ? "&quot;" : char === "&" ? "&amp;" : "&lt;";
 
-const quote = value => {
+let quote = (value) => {
   if (value === null || value === undefined || value === false) {
-    return ''
+    return "";
   } else {
-    return String(value).replace(/["&<]/g, replacement)
+    return String(value).replace(/["&<]/g, replacement);
   }
-}
+};
 
-const renderProps = props => {
-  let html = ''
-  for (const name in props) {
-    const value = props[name]
+let renderProps = (props) => {
+  let html = "";
+  for (let name in props) {
+    let value = props[name];
     if (name in booleanNames) {
-      html += ' ' + name
-    } else if (name !== 'key' && name !== 'html') {
-      html += ' ' + name + '="'
-      if (name === 'class' && Array.isArray(value)) {
-        for (const className of value) {
+      html += " " + name;
+    } else if (name !== "key" && name !== "html") {
+      html += " " + name + '="';
+      if (name === "class" && Array.isArray(value)) {
+        for (let className of value) {
           if (className) {
-            html += quote(className) + ' '
+            html += quote(className) + " ";
           }
         }
-      } else if (name === 'style' && typeof value === 'object') {
-        for (const property in value) {
-          html += quote(property + ':' + value[property] + ';')
+      } else if (name === "style" && typeof value === "object") {
+        for (let property in value) {
+          html += quote(property + ":" + value[property] + ";");
         }
       } else {
-        html += quote(value)
+        html += quote(value);
       }
-      html += '"'
+      html += '"';
     }
   }
-  return html
-}
+  return html;
+};
 
-const renderChild = context => child =>
-  child instanceof Element ? render(child, context) : quote(child)
+let renderChild = (context) => (child) =>
+  child instanceof Element ? render(child, context) : quote(child);
 
-const renderChildren = (children, context) =>
-  children.map(renderChild(context)).join('')
+let renderChildren = (children, context) =>
+  children.map(renderChild(context)).join("");
 
-const render = ({ tag, props, children }, context = {}) => {
+let render = ({ tag, props, children }, context = {}) => {
   if (tag === Fragment) {
-    return renderChildren(children, context)
+    return renderChildren(children, context);
   } else if (tag === Context) {
-    return renderChildren(children, { ...context, ...props.value })
-  } else if (typeof tag === 'function') {
-    return render(tag({ ...props, children }, context), context)
+    return renderChildren(children, { ...context, ...props.value });
+  } else if (typeof tag === "function") {
+    return render(tag({ ...props, children }, context), context);
   } else {
     return (
-      '<' +
+      "<" +
       tag +
       renderProps(props) +
-      '>' +
+      ">" +
       (tag in voidTags
-        ? ''
-        : ('html' in props ? props.html : '') +
+        ? ""
+        : ("html" in props ? props.html : "") +
           renderChildren(children, context) +
-          '</' +
+          "</" +
           tag +
-          '>')
-    )
+          ">")
+    );
   }
-}
+};
 
-const renderChildAsync = context => child =>
-  child instanceof Element ? renderAsync(child, context) : quote(child)
+let renderChildAsync = (context) => (child) =>
+  child instanceof Element ? renderAsync(child, context) : quote(child);
 
-const join = array => array.join('')
+let join = (array) => array.join("");
 
-const renderChildrenAsync = (children, context) =>
-  Promise.all(children.map(renderChildAsync(context))).then(join)
+let renderChildrenAsync = (children, context) =>
+  Promise.all(children.map(renderChildAsync(context))).then(join);
 
-const renderAsync = async ({ tag, props, children }, context = {}) => {
+let renderAsync = async ({ tag, props, children }, context = {}) => {
   if (tag === Fragment) {
-    return renderChildrenAsync(children, context)
+    return renderChildrenAsync(children, context);
   } else if (tag === Context) {
     return renderChildrenAsync(
       children,
       { ...context, ...props.value },
       context
-    )
-  } else if (typeof tag === 'function') {
-    return renderAsync(await tag({ ...props, children }, context), context)
+    );
+  } else if (typeof tag === "function") {
+    return renderAsync(await tag({ ...props, children }, context), context);
   } else {
     return (
-      '<' +
+      "<" +
       tag +
       renderProps(props) +
-      '>' +
+      ">" +
       (tag in voidTags
-        ? ''
-        : ('html' in props ? props.html : '') +
+        ? ""
+        : ("html" in props ? props.html : "") +
           (await renderChildrenAsync(children, context)) +
-          '</' +
+          "</" +
           tag +
-          '>')
-    )
+          ">")
+    );
   }
-}
+};
 
-export { Fragment, Context, createElement, render, renderAsync }
+export { Fragment, Context, createElement, render, renderAsync };
