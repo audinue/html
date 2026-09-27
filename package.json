@@ -1,0 +1,7 @@
+{
+  "name": "@audinue/html",
+  "exports": {
+    "./jsx-runtime": "./jsx-runtime.js",
+    "./jsx-dev-runtime": "./jsx-runtime.js"
+  }
+}
